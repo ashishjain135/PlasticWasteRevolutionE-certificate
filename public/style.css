@@ -1,0 +1,53 @@
+/* Reset default margins and set font */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: Arial, sans-serif;
+}
+
+/* Full-screen background with image */
+.background {
+  background: url('logo.jpg') no-repeat center center/cover;
+  height: 100vh;
+  width: 100%;
+  position: relative;
+}
+
+/* Center the content in the page */
+.content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+}
+
+/* Styling for the heading */
+h1 {
+  font-size: 40px;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 8px black;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 18px;
+  margin: 10px;
+  cursor: pointer;
+}
+
+#userForm {
+  margin-top: 20px;
+}
+
+#userForm input, #userForm button {
+  display: block;
+  margin: 10px auto;
+  padding: 10px;
+  width: 80%;
+  max-width: 400px;
+  border-radius: 5px;
+  border: none;
+}

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"> <!-- Page encoding set to UTF-8 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plastic Waste Form</title> <!-- Webpage title -->
+  <link rel="stylesheet" href="style.css" />  <!-- link external CSS file -->
+</head>
+<body>
+   <!-- Main background section -->
+  <div class="background">
+    <div class="content">
+      <h1>Plastic Waste Revolution</h1>  <!-- Main heading -->
+
+      <br>
+      <button onclick="startScanner()">Generate Your Certificate</button><!--trigger button form -->
+
+       <!-- Hidden form which appears after detection/tigger -->
+      <form id="userForm" style="display:none;" onsubmit="submitForm(event)">
+        <input type="text" id="name" placeholder="Name" required>
+        <input type="text" id="address" placeholder="Address" required>
+        <input type="text" id="branch" placeholder="Branch" required>
+        <input type="text" id="college" placeholder="College Name" required>
+        <input type="date" id="date" required>
+        <input type="file" accept="image/*" id="image" required>
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="script.js"></script><!--link Script file-->
+</body>
+</html>
