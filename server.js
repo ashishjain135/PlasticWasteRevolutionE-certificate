@@ -1,14 +1,15 @@
+
 // Import required packages
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const { jsPDF } = require("jspdf");
-require("jspdf");
 const path = require("path");
 const multer = require("multer");
+const PDFDocument = require("pdfkit"); // ✅ Correct way for Node.js
+const fs = require("fs");
 
 const app = express();
-app.use(cors());// Allow cross-origin
+app.use(cors());
 app.use(express.json());
 
 // Serve static files from /public
@@ -27,89 +28,99 @@ mongoose.connect("mongodb://localhost:27017/plastic-scan", {
   console.error("❌ MongoDB connection error:", err);
 });
 
+// Mongoose Schema
 const User = mongoose.model("User", new mongoose.Schema({
   name: String,
   address: String,
   branch: String,
   college: String,
   date: String,
-  imagePath: String,  // Store image path if needed
+  imagePath: String,  
 }));
 
-// POST route to handle form data submission with file upload
+// POST route to handle form data submission
 app.post("/submit", upload.single('image'), async (req, res) => {
   try {
-    // Save user data and uploaded file path to MongoDB
+    // Save user data in MongoDB
     const userData = new User({
       name: req.body.name,
       address: req.body.address,
       branch: req.body.branch,
       college: req.body.college,
       date: req.body.date,
-      imagePath: req.file.path,  // Save the uploaded file path
+      imagePath: req.file ? req.file.path : "", // handle if image not uploaded
     });
     await userData.save();
 
-    // Create PDF with jsPDF
-    const doc = new jsPDF();
-    //doc.setFontSize(18);
-    //doc.text("Plastic Waste Management Certificate", 90,20);
-    doc.text("Plastic Waste Management Certificate");
-    doc.setFontSize(12);
-    doc.text(`This is to certify that ${req.body.name} from ${req.body.college}`, 20, 40);
-    doc.text(`Branch: ${req.body.branch}`, 20, 50);
-    doc.text(`Address: ${req.body.address}`, 20, 60);
-    doc.text(`Participated on: ${req.body.date}`, 20, 70); 
-    doc.text("Thank you for contributing towards a cleaner environment!", 20, 90);
-    
-    doc.setFillColor(255, 255, 255); // White background
-    doc.rect(0, 0, 210, 297, 'F'); // Full page rectangle
-    doc.setFillColor(0, 51, 102); // Dark blue
-    doc.rect(0, 0, 210, 40, 'F'); // Top header rectangle
+    // Create a new PDF document
+    const doc = new PDFDocument({ size: "A4" });
 
-    // Title Section: Big Bold Title
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(30);
-    doc.setTextColor(255, 255, 255); // White text
-    doc.text("Plastic Waste Management Certificate", 105, 25, null, null, 'center');
-
-    // Add Logo 
-    doc.addImage('logo.jpg', 'JPEG', 15, 5, 30, 30); // Top-left logo
-
-    // Certificate Body Section
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(16);
-    doc.setTextColor(0, 0, 0); // Black text
-    doc.text(`This is to certify that ${req.body.name}`, 105, 80, null, null, 'center');
-    doc.text(`from ${req.body.college}`, 105, 90, null, null, 'center');
-    doc.text(`Branch: ${req.body.branch}`, 105, 100, null, null, 'center');
-    doc.text(`Address: ${req.body.address}`, 105, 110, null, null, 'center');
-    doc.text(`Participated on: ${req.body.date}`, 105, 120, null, null, 'center');
-    // Thank you message section
-    doc.setFontSize(18);
-    doc.setTextColor(0, 51, 102); // Dark blue text for thank you message
-    doc.text("Thank you for contributing towards a cleaner environment!", 105, 140, null, null, 'center');
-
-    // Signature section (Optional)
-    doc.setFontSize(14);
-    doc.setTextColor(0, 0, 0); // Black text
-    doc.text("Signature:", 50, 200);
-    doc.line(65, 200, 190, 200); // Line for signature
-
-    // Decorative Bottom Section (Optional)
-    doc.setLineWidth(1);
-    doc.setDrawColor(0, 51, 102); // Dark blue line for bottom border
-    doc.line(15, 265, 195, 265); // Horizontal line
-
-    // Footer text section
-    doc.setFontSize(10);
-    doc.setTextColor(0, 51, 102); // Dark blue text
-    doc.text("This certificate is generated and issued digitally", 105, 280, null, null, 'center');
-
-    // Send PDF as response
-    const pdf = doc.output("arraybuffer");
+    // Set headers to download the file
     res.setHeader("Content-Type", "application/pdf");
-    res.send(Buffer.from(pdf)); // Send the PDF to the client
+    res.setHeader("Content-Disposition", `attachment; filename=${req.body.name}_certificate.pdf`);
+
+    // Pipe the PDF into the response
+    doc.pipe(res);
+
+    // ====== PDF Content ======
+
+    // White Background
+    doc.rect(0, 0, doc.page.width, doc.page.height).fill('#ffffff');
+
+    // Header
+    doc.fillColor('#003366')
+      .rect(0, 0, doc.page.width, 50)
+      .fill();
+
+    doc.fontSize(20)
+      .fillColor('Skyblue')
+      .text('Plastic Waste Management Certificate', {
+        align: 'center',
+        valign: 'center',
+      });
+
+    // Add Logo (optional)
+    const logoPath = path.join(__dirname, 'public', 'logo.jpg'); 
+    if (fs.existsSync(logoPath)) {
+      doc.image(logoPath, 30, 10, { width: 30 });
+    }
+
+    // Move down to content area
+    doc.moveDown(4);
+
+    // Certificate Body
+    doc.fillColor('black')
+      .fontSize(16)
+      .text(`This is to certify that ${req.body.name}`, { align: 'center' })
+      .text(`from ${req.body.college}`, { align: 'center' })
+      .text(`Branch: ${req.body.branch}`, { align: 'center' })
+      .text(`Address: ${req.body.address}`, { align: 'center' })
+      .text(`Participated on: ${req.body.date}`, { align: 'center' });
+
+    // Thank you section
+    doc.moveDown(2);
+    doc.fillColor('#003366')
+      .fontSize(18)
+      .text("Thank you for contributing towards a cleaner environment!", { align: 'center' });
+
+    // Signature line
+    doc.moveDown(5);
+    doc.fillColor('black')
+      .fontSize(14)
+      .text('Signature:', 70, doc.y)
+      .moveTo(130, doc.y + 5)
+      .lineTo(350, doc.y + 5)
+      .stroke();
+
+    // Footer
+    doc.moveDown(8);
+    doc.fontSize(10)
+      .fillColor('#003366')
+      .text("This certificate is generated and issued digitally.", { align: 'center' });
+
+    // Finalize the PDF and end the stream
+    doc.end();
+
   } catch (err) {
     console.error("❌ Error in /submit:", err);
     res.status(500).send("Server Error");
