@@ -10,6 +10,17 @@ This project is developed for promoting awareness and action against plastic was
 - 🗃️ MongoDB used for storing user details
 - ⚙️ Built using **HTML, CSS, JavaScript, Node.js, Express, MongoDB**
 
+
+
+## 👨‍💻 Team Contributions
+
+| Team Member         | Contribution                                       |
+|---------------------|----------------------------------------------------|
+| **Ashish Jain**     | Backend Development: Server setup, certificate generation, MongoDB integration |
+| **Nihal Dangi**     | Frontend Development: User interface design and implementation |
+| **Ayush Shrivastav**| Content research, project structure, documentation |
+| **Ayush Pal**       | Content writing, UI ideas, and documentation support |
+
 ## 📁 Project Structure
 
 PlasticWasteRevolutionE-certificate/
@@ -39,17 +50,14 @@ MONGODB_URI=your_mongodb_uri_here
 node server.js
 
 5.Open your browser and go to:
-run localhost//
+run on localhost//
 
 
+📚 Documentation
+Detailed documentation is available in documentation.pdf inside the project folder.
 
-Developed By
-Ashish Jain
-Nihal Dangi 
-B.Tech CSE, RGPV University
-
-
-
+🙌 Special Thanks
+Thanks to our mentors, friends, and organizers for guiding and supporting us throughout the hackathon.
 
 
 
